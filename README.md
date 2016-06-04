@@ -2,6 +2,12 @@
 
 Validator component for Vue.js
 
+# 作者
+开着宝马的小猪猪(jafar.tang)
+
+# 邮箱
+461415520@qq.com
+
 # Compatibility
 - Vue.js `1.0.20`+
 
