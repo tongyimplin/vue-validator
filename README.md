@@ -4,6 +4,7 @@ Vue.js验证插件，小巧易用，适合中小型项目，快速开发
 
 # 作者
 开着宝马的小猪猪(jafar.tang)
+
 [博客](http://www.xiaozhuzhu.top)
 
 # 邮箱
