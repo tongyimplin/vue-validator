@@ -9,11 +9,21 @@ Validator component for Vue.js
 ## 使用前
 本框架重要的指令就两个分别是**v-valid**和**v-watch-param**
 
+> PS请在配置Vue的时候不要在methods方法中定义**_doValid**方法，因为这是框架内置的一个方法，并且保证data.validation为空以免冲突
+
 ### v-valid
 该指令是基于v-model的基础上扩展的用法与v-model一样，但是添加了v-vliad的控件可以添加入**length**,**range**等参数,v-vliad中的参数**必须是data.params**中的参数
 
 ### v-watch-param
-该指令主要用于显示被监控变量的检查结果信息以及样式，在初始化Vue对象的时候可以传入vconf对象，进行配置也可以不传
+该指令主要用于显示被监控变量的检查结果信息以及样式，在初始化Vue对象的时候可以传入vconf对象，进行配置也可以不传，在填值的时候只需填写对应的data.params中的变量key值即可。
+如：
+```
+<input type="text"
+	v-valid="params.name"
+	length="4,8:姓名长度应该在4-8位之间" />
+<span v-watch-param="name"></span>
+```
+下面是配置的信息的案例：
 ```
 new Vue({
 	el: '#validationAPP',
@@ -34,39 +44,69 @@ new Vue({
 });
 ```
 
+### 使用_doValid方法验证是否正确
+定义事件方法submit,在提交按钮上注册该事件 
+```
+submit: function() {
+	//当且仅当需要被验证的变量上标注的属性都被验证通过才返回true
+	var valid = this._doValid();
+}
+```
+
 ### v-valid 和 v-watch-param的实际使用案例
 ```
-<input type="text"
-	v-valid="params.age"
-	range="1,6:数值范围应该在1-6之间" />
-<span v-watch-param="age"></span>
-```
-
-
-首先需要保证待验证的参数必须放在data.params中
-如：
-```
-var app = new Vue({
-	el: '#validationAPP',
-	data: {
-		params:{
-			//这是姓名需要被验证
-			name: '',
-			//这是年龄需要被验证
-			age: 0
+<div id="validationAPP" class="container">
+	<div class="row cl">
+		<input type="text" class="input-text f-l w300" 
+			v-valid="params.name"
+			length="4,8:姓名长度应该在4-8位之间"
+			required="姓名不能为空"
+			email="姓名必须为邮件格式" />
+		<span class="ml-10 lh30" v-watch-param="name"></span>
+	</div>
+	<div class="row cl">
+		<input type="text" class="input-text f-l w300" 
+			v-valid="params.age"
+			range="1,6:数值范围应该在1-6之间" />
+		<span class="lh30 ml-10" v-watch-param="age"></span>
+	</div>
+	<div class="row">
+		<p>{{params.name}}</p>
+	</div>
+	<div class="row">
+		<button class="btn btn-primary" @click="submit">submit</button>
+	</div>
+</div>
+<script type="text/javascript">
+$(function(){
+	var app = new Vue({
+		el: '#validationAPP',
+		data: {
+			params:{
+				name: '',
+				age: 0
+			}
+		},
+		methods: {
+			submit: function(){
+				console.log(this._doValid());
+			}
+		},
+		vconf: {
+			cls: {
+				success: 'c-green',
+				error: 'c-red'
+			},
+			ok: '✔',
+			err: '✘ '
 		}
-	}
+	});
 });
+</script>
 ```
-并且保证data.validation为空以免冲突,并且在methods中已经内置了_doValid方法，请不要重复定义，以免冲突
 
-使用：
-```
-<input type="text" class="input-text f-l w300" 
-	v-valid="params.age"
-	range="1,6:数值范围应该在1-6之间" />
-<span class="lh30 ml-10" v-watch-param="age"></span>
-```
+,并且在methods中已经内置了_doValid方法，请不要重复定义，以免冲突
+
 input是文本输入框，该文本框绑定
 ## required: 必须有该参数
 ## not-blank: (中间允许有空格)
@@ -80,15 +120,11 @@ input是文本输入框，该文本框绑定
 ## IP： 适配ipv4地址
 ## url: 浏览器地址格式
 ## date: 日期格式，yyyy-MM-dd
-## datetime: 日期时间格式yyyy-MM-dd HH:ii:ss
+## ~~datetime: 日期时间格式yyyy-MM-dd HH:ii:ss~~ 暂不支持
 ## phone: 手机号码格式 ,适配13*,18*,15*,17*,16*,14*
 ## mobile： 电话号码格式,适配有区号或无区号的电话号码
 ## digits: 仅支持整数
 ## unsign: 仅支持正整数
-
-
-# Documentation
-## 
 
 # Contributing
 - Fork it !
