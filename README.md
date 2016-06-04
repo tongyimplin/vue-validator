@@ -1,4 +1,4 @@
-# vue-validator-mini
+# vue-validator
 
 Validator component for Vue.js
 
@@ -114,23 +114,23 @@ $(function(){
 ,并且在methods中已经内置了_doValid方法，请不要重复定义，以免冲突
 
 input是文本输入框，该文本框绑定
-## required: 必须有该参数
-## not-blank: (中间允许有空格)
-## not-empty: (不允许为空的)
-## length: 长度,eg:length=6表示长度只能有6位，length="1,8"表示1到8位，length=",8"最多8位 ，length="8,"表示至少需要8位
-## range: 数值范围，eg:range=5数值必须等于5（感觉有点鸡肋，暂时这样吧），range="1,5"表示between 1 and 5，range=",5"表示最大的数值只能为5,ps小数对比可能会出现未知错误
-## number: 表示只接受数值
-## pattern: 符合正则才行
-## email: 邮件格式
-## money: 金额必须带有小数，如12.3,12.43,12.323。没有小数不能通过验证
-## IP： 适配ipv4地址
-## url: 浏览器地址格式
-## date: 日期格式，yyyy-MM-dd
-## ~~datetime: 日期时间格式yyyy-MM-dd HH:ii:ss~~ 暂不支持
-## phone: 手机号码格式 ,适配13*,18*,15*,17*,16*,14*
-## mobile： 电话号码格式,适配有区号或无区号的电话号码
-## digits: 仅支持整数
-## unsign: 仅支持正整数
+##### required: 必须有该参数
+##### not-blank: (中间允许有空格)
+##### not-empty: (不允许为空的)
+##### length: 长度,eg:length=6表示长度只能有6位，length="1,8"表示1到8位，length=",8"最多8位 ，length="8,"表示至少需要8位
+##### range: 数值范围，eg:range=5数值必须等于5（感觉有点鸡肋，暂时这样吧），range="1,5"表示between 1 and 5，range=",5"表示最大的数值只能为5,ps小数对比可能会出现未知错误
+##### number: 表示只接受数值
+##### pattern: 符合正则才行
+##### email: 邮件格式
+##### money: 金额必须带有小数，如12.3,12.43,12.323。没有小数不能通过验证
+##### IP： 适配ipv4地址
+##### url: 浏览器地址格式
+##### date: 日期格式，yyyy-MM-dd
+##### ~~datetime: 日期时间格式yyyy-MM-dd HH:ii:ss~~ 暂不支持
+##### phone: 手机号码格式 ,适配13*,18*,15*,17*,16*,14*
+##### mobile： 电话号码格式,适配有区号或无区号的电话号码
+##### digits: 仅支持整数
+##### unsign: 仅支持正整数
 
 # Contributing
 - Fork it !
