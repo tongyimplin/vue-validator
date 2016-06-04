@@ -13,12 +13,12 @@ Vue.js验证插件，小巧易用，适合中小型项目，快速开发
 
 # 说明
 ## 使用前
-本框架重要的指令就两个分别是**v-valid**和**v-watch-param**
+本插件重要的指令就两个分别是**v-valid**和**v-watch-param**
 
 > PS请在配置Vue的时候不要在methods方法中定义**_doValid**方法，因为这是框架内置的一个方法，并且保证data.validation为空以免冲突
 
 ### v-valid
-该指令是基于v-model的基础上扩展的用法与v-model一样，但是添加了v-vliad的控件可以添加入**length**,**range**等参数,v-vliad中的参数**必须是data.params**中的参数
+该指令是基于v-model的基础上扩展的用法与v-model一样，但是添加了v-valid的控件可以添加入**length**,**range**等参数,v-valid中的参数**必须是data.params**中的参数
 
 ### v-watch-param
 该指令主要用于显示被监控变量的检查结果信息以及样式，在初始化Vue对象的时候可以传入vconf对象，进行配置也可以不传，在填值的时候只需填写对应的data.params中的变量key值即可。
@@ -132,14 +132,5 @@ input是文本输入框，该文本框绑定
 ##### digits: 仅支持整数
 ##### unsign: 仅支持正整数
 
-# Contributing
-- Fork it !
-- Create your top branch from `dev`: `git branch my-new-topic origin/dev`
-- Commit your changes: `git commit -am 'Add some topic'`
-- Push to the branch: `git push origin my-new-topic`
-- Submit a pull request to `dev` branch of `vuejs/vue-validator` repository !
 
-# Issues
-
-Please make sure to read the [Issue Reporting Checklist](https://github.com/vuejs/vue/blob/dev/CONTRIBUTING.md#issue-reporting-guidelines) before opening an issue. Issues not conforming to the guidelines may be closed immediately.
-
+# [Vuejs 官网](http://cn.vuejs.org/)
