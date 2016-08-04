@@ -19,6 +19,8 @@
  * mobile： 电话号码格式,适配有区号或无区号的电话号码
  * digits: 仅支持整数
  * unsign: 仅支持正整数
+ * equals: 必须与另外一个参数相等,改参数必须在params内部
+ * initial: 初始化的值
  */
 (function(Vue){
   /**
@@ -52,7 +54,8 @@
 	  				error: conf.cls.error || 'c-red'
 	  			};
 	  			//成功后的提示文字
-	  			this.ok = conf.ok || '✔';
+	  			//this.ok = conf.ok || '✔';
+	  			this.ok = "";
 	  			//失败后的文字前缀
 	  			this.err = conf.err || '✘ ';
 	  		},
@@ -63,14 +66,18 @@
 	  		 * @param {Object} msg
 	  		 */
 	  		required: function(v) {
-	  			return !v?true:false;
+	  			return !v ? false : true;
 	  		},
 	  		'notBlank': function(v) {
 	  			var reg = /^[^\s]+$/ig;
 	  			return this.pattern(v, reg);
 	  		},
 	  		'notEmpty': function(v) {
-	  			return v.trim().length>0;
+	  			if(typeof(v) === 'string') {
+		  			return v.trim().length>0;
+	  			}else if(typeof(v) === 'number'){
+	  				return !isNaN(v);
+	  			}
 	  		},
 	  		length: function(v, args) {
 	  			//args获取判断长度
@@ -86,7 +93,7 @@
 	  			}
 	  			if(args.length == 2) {
 	  				//范围比较
-	  				return arg0 && arg1 ? len>=arg0 && len<=arg1 : len>=arg0 || len<=arg1;
+	  				return typeof(arg0)=='number' && typeof(arg1)=='number' ? len>=arg0 && len<=arg1 : len>=arg0 || len<=arg1;
 	  			}else {
 	  				//长度相等
 	  				return len==arg0;
@@ -106,7 +113,7 @@
 	  			}
 	  			if(args.length == 2) {
 	  				//范围比较
-	  				return arg0 && arg1 ? v>=arg0 && v<=arg1 : v>=arg0 || v<=arg1;
+	  				return typeof(arg0)=='number' && typeof(arg1)=='number' ? v>=arg0 && v<=arg1 : v>=arg0 || v<=arg1;
 	  			}else {
 	  				//长度相等
 	  				return v==arg0;
@@ -116,7 +123,10 @@
 	  			return isNaN(v);
 	  		},
 	  		pattern: function(v, reg) {
-	  			return v.match(reg);
+	  			if(!v) return true;
+	  			var _v = v+'';
+//	  			return _v.match(reg) ? true : false;
+				return new RegExp(reg, 'ig').test(_v);
 	  		},
 	  		email: function(v) {
 	  			var reg = /^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$/ig;
@@ -171,7 +181,7 @@
 	  		},
 	  		phone: function(v, args) {
 	  			var reg = /^[1][385764][0-9]{9}$/;
-	  			return this.pattern(reg);
+	  			return this.pattern(v, reg);
 	  		},
 	  		mobile: function(v, args) {
 	  			var reg0 = /^[0][1-9]{2,3}-[0-9]{5,10}$/;
@@ -199,9 +209,14 @@
 	  		        return "31";;
 	  		    }
 	  		},
+	  		equals: function(v, args) {
+	  			return this.app.params[args] == v;
+	  		},
 	  		check: function(v, params, _key) {
 	  			_key = _key.replace('params.','');
 	  			for(var key in params) {
+	  				//如果是initial则跳过
+	  				if(key === 'initial') { continue; }
 	  				var _val = params[key];
 	  				//输入值防空判断
 	  				if(!_val) {
@@ -222,6 +237,14 @@
 	  					this.app.validation[_key].cls = this.cls.success;
 	  					this.app.validation[_key].msg = this.ok;
 	  					this.app.validation[_key].valid = true;
+	  					//如果自定义的为false那么valid也要为false
+	  					if(!this.app.validation[_key].cValid) {
+		  					this.app.validation[_key].cls = this.cls.error;
+		  					this.app.validation[_key].msg = this.err+this.app.validation[_key].cMsg;
+		  					this.app.validation[_key].valid = false;
+	  					}else if(this.app.validation[_key].cMsg) {
+	  						this.app.validation[_key].msg = this.ok+this.app.validation[_key].cMsg;
+	  					}
 	  				}
 	  			}
 	  		}
@@ -233,34 +256,64 @@
 	  	}
 	}
 	
-	//初始化后的APP
-	var app;
-	var validator;
-	//valid的参数与model相仿
+	/*//valid的参数与model相仿
 	var model = Vue.directive('model');
 	//复制一下
 	var m = {};
 	for(var key in model) {
 		m[key] = model[key];
 	}
-	model = m;
+	model = m;*/
+	var model = {};
 	var params = ['required','not-blank','not-empty','length','range','number','pattern',
-				'email','url','date','datetime','phone','mobile','digits'];
+				'email','url','date','datetime','phone','mobile','digits','equals', 'initial'];
 	//改造params参数
-	model.params = params.concat(model.params);
-	var _bind = model.bind;
+	model.params = params;
+	/*var _bind = model.bind;
 	model.bind = function() {
 		_bind.call(this);
+		var _update = this.update;
 		this.update = function(v) {
+			_update.call(this, 1);
+			this.update = this._update1;
+     		this._unbind = this._unbind1;
+			var validator = this.vm.$validator;
 			//输入值改变时
 			if(validator) {
 				validator.check(v, this.params, this.expression); 
 			}
+		}.bind(this)
+	}*/
+	model.bind = function() {
+		var key = this.expression;
+		key = key.replace('params.', '');
+		this.vm.validation[key].valid = this.params.initial ? this.params.initial : false;
+		this.el.onchange = this.el.onblur = function(event) {
+			var v = this.el.value || '';
+			var validator = this.vm.$validator;
+			return validator.check(v, this.params, this.expression); 
+		}.bind(this);
+		
+		//缓存元素一遍调用
+		var doms = this.vm.$doms;
+		if(!doms) {
+			doms = [];
 		}
+		doms.push(this);
+		this.vm.$doms = doms;
+		//监听
+		/*this.vm.$watch(key, function(v){
+			var validator = this.vm.$validator;
+			//输入值改变时
+			if(validator) {
+				validator.check(v, this.params, this.expression); 
+			}
+		}.bind(this));*/
 	}
-	
+	model.update = function() {}
+	model.unbind = function() {}
 	//注册验证数据
-	Vue.directive('valid', model);
+	Vue.directive('valid', model);	
 	//注册验证结果显示
 	Vue.directive('watch-param', {
 		bind: function() {
@@ -289,30 +342,85 @@
 		if(params) {
 			//初始化验证信息
 			for(var key in params) {
-				validation[key] = {msg:'', cls:'', valid: false};
+				validation[key] = {msg:'', cls:'', valid: true, cValid: true, cMsg:''};
 			}
 			t.data.validation = validation;
 			if(!t.methods) t.methods = {};
 			//注册验证方法
 			t.methods._doValid = function() {
 				var valid = true;
-				for(var key in this.validation) {
-					this.params[key] = this.params[key]+'1';
+				/*for(var key in this.validation) {
 					var _obj = this.validation[key];
 					if(!_obj.valid) {
 						valid = false;
 						break;
 					}
+				}*/
+				//升级版验证方法
+				for(var key in this.$doms) {
+					var dom = this.$doms[key];
+					if(dom && dom.el) {
+						dom.el.onblur();
+						var _key = dom.expression;
+						_key = _key.replace('params.','');
+						if(!this.validation[_key].valid){
+							valid = false;
+							break;
+						}
+					}
 				}
 				return valid;
+			}
+			
+			//添加错误信息的方法
+			t.methods._addError = function(key, msg) {
+				var param = this.validation[key];
+				if(param) {
+					param.cValid = false;
+					param.cMsg = msg;
+					this.validation[key] = param;
+				}
+				this.$doms.every(function(dom, index, arr) {
+					var _key = dom.expression;
+					if(_key.indexOf(key) != -1) {
+						dom.el.onblur();
+					}
+					return true;
+				});
+			}
+			
+			//清楚错误方法
+			t.methods._clrError = function(key, msg) {
+				var param = this.validation[key];
+				if(param) {
+					param.cValid = true;
+					param.cMsg = msg || '';
+					this.validation[key] = param;
+				}
+				this.$doms.every(function(dom, index, arr) {
+					var _key = dom.expression;
+					if(_key.indexOf(key) != -1) {
+						dom.el.onblur();
+					}
+					return true;
+				});
+			}
+			
+			//清楚样式
+			t.methods._clearValid = function() {
+				for(var key in this.validation) {
+					var valid = this.validation[key];
+					valid.cls = '';
+					valid.msg = '';
+				}
 			}
 		}
 		//进入之前先重新构造方法
 		this._reloadinit(t);
 		//这里已经初始化完成，现在需要做的监听需要validate的变量
-		app = this;
+		var app = this;
 		//验证器
-		validator = (Validator()).create(app, vconf);
+		this.$validator = (Validator()).create(app, vconf);
 	};
 	
 }(Vue));
